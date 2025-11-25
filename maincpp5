@@ -1,0 +1,207 @@
+#include <iostream>
+#include <cmath>
+#include <clocale>
+#include <iomanip>
+#include <limits>
+
+using namespace std;
+
+// -------------------- ЗАВДАННЯ 1 --------------------
+void task1();                       // Оголошення функції для завдання 1
+bool inFigure(double x, double y, double r);  // Перевірка, чи точка в фігурі
+
+// -------------------- ЗАВДАННЯ 2 --------------------
+void task2();                       // Оголошення функції для завдання 2
+
+// -------------------- ЗАВДАННЯ 3 --------------------
+double factorial_minus_one(int n);  // Обчислення (n-1)!
+double calculate_an(int n);         // Обчислення загального члена ряду
+void analyze_series();              // Дослідження розбіжності ряду
+
+// -------------------- MAIN --------------------
+int main() {
+    setlocale(LC_ALL, "Ukrainian"); // Підтримка кирилиці в консолі
+    int menu;                       // Змінна для вибору завдання
+
+    do {
+        // Меню вибору завдання
+        cout << "\nВведіть номер завдання (1, 2, 3) або -1 для виходу: ";
+        cin >> menu;
+
+        switch (menu) {
+            case 1:
+                task1();  // Виклик функції завдання 1
+                break;
+            case 2:
+                task2();  // Виклик функції завдання 2
+                break;
+            case 3:
+                analyze_series(); // Виклик функції завдання 3
+                break;
+            case -1:
+                cout << "Вихід...\n";
+                break;
+            default:
+                cout << "Невірний номер завдання!\n";
+                break;
+        }
+    } while (menu != -1); // Повторювати, поки користувач не введе -1
+
+    return 0;
+}
+
+// -------------------- ВИЗНАЧЕННЯ ФУНКЦІЙ --------------------
+
+// --- Task1 ---
+// Перевіряє, чи точка (x, y) потрапляє у фігуру
+bool inFigure(double x, double y, double r){
+    // --- БІЛА ОБЛАСТЬ 1 (1-й квадрант: справа зверху) ---
+    if (x >= 0 && y >= 0) {  // точка у першому квадранті
+        double r_circle = r / 2.0; // Радіус маленького кола всередині ромба
+        if (x + y <= r) { // Перевірка, що точка всередині ромба
+            if (pow(x - r_circle, 2) + pow(y - r_circle, 2) > pow(r_circle, 2)) {
+                // Точка ЗЗОВНІ маленького кола
+                return true;
+            }
+        }
+    }
+
+    // --- БІЛА ОБЛАСТЬ 2 (3-й квадрант: зліва знизу) ---
+    if (x <= 0 && y <= 0) { // точка у третьому квадранті
+        if (x >= -r && y >= -r) { // обмеження квадратом
+            if (pow(x + r, 2) + pow(y + r, 2) > pow(r, 2)) {
+                // Точка ЗЗОВНІ великого півкола
+                return true;
+            }
+        }
+    }
+
+    return false; // Інакше точка не входить у фігуру
+}
+
+// Основна функція завдання 1
+void task1(){
+    int count = 0;       // Лічильник точок, що потрапили у фігуру
+    int pointCount = 0;  // Загальна кількість точок
+    double r;            // Радіус (параметр фігури)
+
+    cout << "Введіть параметр R (радіус): ";
+    cin >> r;
+
+    cout << "Введіть кількість точок: ";
+    cin >> pointCount;
+
+    for(int i = 0; i < pointCount; i++){
+        double x, y;
+        cout << "Введіть координати x та y (через пробіл): ";
+        cin >> x >> y;
+
+        // Перевірка, чи точка потрапляє у фігуру
+        if (inFigure(x, y, r)){
+            count++;
+            cout << " -> Так (Влучення)" << endl;
+        } else {
+            cout << " -> Ні (Промах)" << endl;
+        }
+    }
+
+    // Вивід результату
+    cout << "-----------------------------------" << endl;
+    cout << "Результат: " << count << " з " << pointCount << " точок потрапили у фігуру." << endl;
+}
+
+// --- Task2 ---
+// Обчислює суму ряду та виводить кожен третій елемент
+void task2() {
+    int n;                // Кількість членів ряду
+    double x, sum = 0.0, current_term; // Сума та поточний член
+
+    // Введення x з перевіркою |x| < 4
+    do {
+        cout << "Введіть дійсне число x (|x| < 4): ";
+        cin >> x;
+        if (abs(x) >= 4) {
+            cout << "Помилка: |x| >= 4. Будь ласка, введіть x менше 4 за модулем." << endl;
+        }
+    } while (abs(x) >= 4);
+
+    cout << "Введіть натуральне число n (верхня межа суми): ";
+    cin >> n;
+
+    // Цикл обчислення суми ряду
+    for (int i = 0; i <= n; i++) {
+        double denominator = pow(5, i) + i; // Знаменник
+        double numerator = pow(x, i + 2);   // Чисельник
+        current_term = numerator / denominator;
+        sum += current_term;
+
+        // Вивід кожного третього елемента
+        if ((i + 1) % 3 == 0) {
+            cout << fixed << setprecision(8);
+            cout << "Значення " << i + 1 << "-го елемента (i=" << i << "): " << current_term << endl;
+        }
+    }
+
+    // Вивід фінальної суми
+    cout << "\nФінальне значення суми S: " << fixed << setprecision(8) << sum << endl;
+}
+
+// --- Task3 ---
+// Обчислює факторіал (n-1)!
+double factorial_minus_one(int n) {
+    if (n <= 1) return 1.0;
+    double res = 1.0;
+    for (int i = 2; i <= n - 1; ++i) {
+        res *= i;
+    }
+    return res;
+}
+
+// Обчислює загальний член ряду
+double calculate_an(int n) {
+    if (n == 0) return 0.0;
+    double denominator = pow((double)n, sqrt((double)n)); // n^sqrt(n)
+    double numerator = pow(2.0, (double)n) * factorial_minus_one(n); // 2^n * (n-1)!
+    if (isinf(numerator)) { // Якщо чисельник надто великий
+        if (!isinf(denominator) && denominator != 0.0) return numeric_limits<double>::infinity();
+    }
+    return numerator / denominator;
+}
+
+// Дослідження розбіжності ряду
+void analyze_series() {
+    double a_n; 
+    double sum = 0.0;   // Наростаюча сума
+    int n = 1;          // Лічильник членів ряду
+    const double G = 1e+3; // Величина для перевірки розбіжності
+    const int M = 5;       // Крок виводу на екран
+
+    cout << "### Дослідження Розбіжного Ряду ###" << endl;
+    cout << "Ряд: Sum (n=1 to inf) [ 2^n * (n-1)! / n^sqrt(n) ]" << endl;
+    cout << "Умова розбіжності: |a_n| > G = " << scientific << setprecision(2) << G << endl;
+    cout << "------------------------------------------" << endl;
+
+    // Ініціалізація першого елемента
+    a_n = calculate_an(n);
+    sum += a_n;
+    cout << "n=" << setw(3) << n << " | a_n = " << fixed << setprecision(15) << a_n << " | Sum = " << sum << endl;
+
+    // Основний цикл: поки ряд не розбіжний
+    while (abs(a_n) <= G && !isinf(a_n)) {
+        n++;
+        a_n = calculate_an(n);
+        sum += a_n;
+
+        if (n % M == 0) { // Вивід з кроком M
+            cout << "n=" << setw(3) << n << " | a_n = " << fixed << setprecision(15) << a_n << " | Sum = " << sum << endl;
+        }
+    }
+
+    cout << "------------------------------------------" << endl;
+    if (abs(a_n) > G || isinf(a_n)) {
+        cout << "ОСТАННІЙ ВИВОД:" << endl;
+        cout << "n=" << setw(3) << n << " | a_n = " << fixed << setprecision(15) << a_n << " | Sum = " << sum << endl;
+        cout << "\n** Ряд РОЗБІЖНИЙ **" << endl;
+        cout << "Величина загального члена |a_" << n << "| = " << scientific << setprecision(4) << abs(a_n) << " перевищила G = " << G << endl;
+    }
+}
