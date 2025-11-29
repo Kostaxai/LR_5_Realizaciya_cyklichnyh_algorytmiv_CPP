@@ -1,0 +1,205 @@
+#include <iostream>
+#include <cmath>
+#include <iomanip>
+#include <clocale>
+#include <limits>
+
+using namespace std;
+
+// ============================================================================
+//                          ДОДАТКОВІ ФУНКЦІЇ ВАЛІДАЦІЇ
+// ============================================================================
+
+// Перевірка радіуса для Task1
+bool isValidR(double r) {
+    return r > 0;
+}
+
+// Перевірка координати x або y для Task1
+bool isValidCoordinate(double c) {
+    return c >= -1000 && c <= 1000; // допустимий діапазон
+}
+
+// Перевірка x для Task2 (|x| < 4)
+bool isValidXTask2(double x) {
+    return abs(x) < 4;
+}
+
+// Перевірка n для Task2 і Task3 (натуральне число)
+bool isValidN(int n) {
+    return n > 0;
+}
+
+// ============================================================================
+//                              TASK 1
+// ============================================================================
+
+// Перевіряє, чи точка (x, y) належить фігурі
+bool inFigure(double x, double y, double r) {
+    if (x >= 0 && y >= 0) {
+        double r_circle = r / 2.0;
+        if (x + y <= r && pow(x - r_circle, 2) + pow(y - r_circle, 2) > pow(r_circle, 2)) return true;
+    }
+    if (x <= 0 && y <= 0) {
+        if (x >= -r && y >= -r && pow(x + r, 2) + pow(y + r, 2) > pow(r, 2)) return true;
+    }
+    return false;
+}
+
+// Виконання Task1
+void task1() {
+    cout << "\n=== Завдання 1: Перевірка точок у фігурі ===\n";
+
+    double r;
+    int pointCount;
+
+    // Введення та перевірка радіуса
+    do {
+        cout << "Введіть параметр R (>0): ";
+        cin >> r;
+    } while (!isValidR(r));
+
+    // Введення та перевірка кількості точок
+    do {
+        cout << "Скільки точок будете вводити? ";
+        cin >> pointCount;
+    } while (!isValidN(pointCount));
+
+    int count = 0;
+    for (int i = 0; i < pointCount; i++) {
+        double x, y;
+        // Введення координат з перевіркою
+        do {
+            cout << "\nВведіть x: ";
+            cin >> x;
+        } while (!isValidCoordinate(x));
+        do {
+            cout << "Введіть y: ";
+            cin >> y;
+        } while (!isValidCoordinate(y));
+
+        if (inFigure(x, y, r)) {
+            cout << " -> Так (точка у фігурі)\n";
+            count++;
+        } else {
+            cout << " -> Ні (точка поза фігурою)\n";
+        }
+    }
+
+    cout << "\nРезультат: " << count << " з " << pointCount 
+         << " точок знаходяться у фігурі.\n";
+}
+
+// ============================================================================
+//                              TASK 2
+// ============================================================================
+
+void task2() {
+    cout << "\n=== Завдання 2: Обчислення суми ряду ===\n";
+
+    double x;
+    int n;
+
+    // Введення та перевірка x
+    do {
+        cout << "Введіть x (|x|<4): ";
+        cin >> x;
+    } while (!isValidXTask2(x));
+
+    // Введення та перевірка n
+    do {
+        cout << "Введіть n (>0): ";
+        cin >> n;
+    } while (!isValidN(n));
+
+    double sum = 0.0;
+    for (int i = 0; i <= n; i++) {
+        double term = pow(x, i + 2) / (pow(5, i) + i);
+        sum += term;
+
+        if ((i + 1) % 3 == 0) {
+            cout << "Елемент №" << (i + 1) << ": " << fixed << setprecision(8) << term << endl;
+        }
+    }
+
+    cout << "\nСума S = " << fixed << setprecision(8) << sum << endl;
+}
+
+// ============================================================================
+//                              TASK 3
+// ============================================================================
+
+double factorial_minus_one(int n) {
+    if (n <= 1) return 1.0;
+    double res = 1.0;
+    for (int i = 2; i <= n - 1; i++) res *= i;
+    return res;
+}
+
+double calculate_an(int n) {
+    if (n == 0) return 0.0;
+    double denom = pow(n, sqrt(n));
+    double numer = pow(2.0, n) * factorial_minus_one(n);
+    if (isinf(numer)) {
+        if (!isinf(denom) && denom != 0) return numeric_limits<double>::infinity();
+    }
+    return numer / denom;
+}
+
+void task3() {
+    cout << "\n=== Завдання 3: Дослідження розбіжного ряду ===\n";
+
+    double sum = 0.0, a_n;
+    int n = 1;
+    const double G = 1e3;
+    const int M = 5;
+
+    a_n = calculate_an(n);
+    sum += a_n;
+    cout << "n=" << n << " | a_n=" << a_n << " | Sum=" << sum << endl;
+
+    while (abs(a_n) <= G && !isinf(a_n)) {
+        n++;
+        a_n = calculate_an(n);
+        sum += a_n;
+        if (n % M == 0) {
+            cout << "n=" << n << " | a_n=" << a_n << " | Sum=" << sum << endl;
+        }
+    }
+
+    cout << "\nОСТАННІЙ ВИВІД:\n";
+    cout << "n=" << n << " | a_n=" << a_n << " | Sum=" << sum << endl;
+    cout << "\n*** Ряд РОЗБІЖНИЙ ***\n";
+}
+
+// ============================================================================
+//                                ГОЛОВНЕ МЕНЮ
+// ============================================================================
+
+int main() {
+    setlocale(LC_ALL, "Ukrainian");
+
+    int menu;
+    do {
+        cout << "\n--------------------------------------------\n";
+        cout << "Введіть номер завдання:\n";
+        cout << " 1 — Перевірка точок\n";
+        cout << " 2 — Сума ряду\n";
+        cout << " 3 — Розбіжний ряд\n";
+        cout << " -1 — Вихід\n";
+        cout << "Ваш вибір: ";
+        cin >> menu;
+        cout << "--------------------------------------------\n";
+
+        switch (menu) {
+            case 1: task1(); break;
+            case 2: task2(); break;
+            case 3: task3(); break;
+            case -1: cout << "Вихід...\n"; break;
+            default: cout << "Невірний номер! Спробуйте ще раз.\n"; break;
+        }
+
+    } while (menu != -1);
+
+    return 0;
+}
